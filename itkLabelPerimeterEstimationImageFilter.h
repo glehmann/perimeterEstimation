@@ -6,24 +6,11 @@
 namespace itk {
 
 /** \class LabelPerimeterEstimationImageFilter
- * \brief Morphological watershed transform from markers
- *
- * TODO
- * 
- * Watershed pixel are labeled 0.
- * TOutputImage should be an integer type.
- * The marker image must contain labeled component (each component
- * have a different value).
- * Labels of output image are the label of the marker image.
- *
- * The morphological watershed transform algorithm is described in
- * Chapter 9.2 of Pierre Soille's book "Morphological Image Analysis:
- * Principles and Applications", Second Edition, Springer, 2003.
+ * \brief TODO
  *
  * \author Gaëtan Lehmann. Biologie du Développement et de la Reproduction, INRA de Jouy-en-Josas, France.
  *
- * \sa WatershedImageFilter, MorphologicalWatershedImageFilter
- * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
+ * \sa 
  */
 template<class TInputImage>
 class ITK_EXPORT LabelPerimeterEstimationImageFilter : 
