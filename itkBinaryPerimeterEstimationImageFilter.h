@@ -76,6 +76,8 @@ public:
   itkSetMacro(ForegroundValue, InputImagePixelType);
   itkGetConstMacro(ForegroundValue, InputImagePixelType);
 
+  itkGetConstMacro(Perimeter, double);
+
 
 protected:
   BinaryPerimeterEstimationImageFilter();
@@ -111,6 +113,8 @@ private:
   bool m_FullyConnected;
 
   InputImagePixelType m_ForegroundValue;
+
+  double m_Perimeter;
 
 } ; // end of class
 

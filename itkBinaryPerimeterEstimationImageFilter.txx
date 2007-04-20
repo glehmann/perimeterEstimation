@@ -35,6 +35,7 @@ BinaryPerimeterEstimationImageFilter<TInputImage>
 {
   m_FullyConnected = false;
   m_ForegroundValue = NumericTraits<InputImagePixelType>::max();
+  m_Perimeter = 0;
 }
 
 
@@ -156,6 +157,7 @@ BinaryPerimeterEstimationImageFilter<TInputImage>
   
   os << indent << "FullyConnected: "  << m_FullyConnected << std::endl;
   os << indent << "ForegroundValue: "  << static_cast<typename NumericTraits<InputImagePixelType>::PrintType>(m_ForegroundValue) << std::endl;
+  os << indent << "Perimeter: " << static_cast<typename NumericTraits< double >::PrintType>(m_Perimeter) << std::endl;
 }
   
 }// end namespace itk
