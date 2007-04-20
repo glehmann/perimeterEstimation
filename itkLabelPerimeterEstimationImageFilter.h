@@ -44,6 +44,8 @@ public:
   typedef typename InputImageType::RegionType     InputImageRegionType;
   typedef typename InputImageType::PixelType      InputImagePixelType;
   
+  typedef typename InputImageType::RegionType     RegionType;
+  typedef typename InputImageType::SizeType       SizeType;
   typedef typename InputImageType::IndexType      IndexType;
   
   /** ImageDimension constants */

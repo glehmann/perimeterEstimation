@@ -77,6 +77,15 @@ LabelPerimeterEstimationImageFilter<TInputImage>
   this->AllocateOutputs();
   ProgressReporter progress( this, 0, this->GetOutput()->GetRequestedRegion().GetNumberOfPixels() );
   
+  // reduce the region to avoid reading outside
+  RegionType region = this->GetOutput()->GetRequestedRegion();
+  SizeType size = region.GetSize();
+  for( int i=0; i<ImageDimension; i++ )
+    {
+    size[i]--;
+    }
+  region.SetSize( size );
+
   // the radius which will be used for all the shaped iterators
   Size< ImageDimension > radius;
   radius.Fill(1);
@@ -84,10 +93,10 @@ LabelPerimeterEstimationImageFilter<TInputImage>
   // set up the iterator
   typedef ConstShapedNeighborhoodIterator<InputImageType> IteratorType;
   typename IteratorType::ConstIterator nIt;
-  IteratorType iIt( radius, this->GetInput(), this->GetOutput()->GetRequestedRegion() );
-  ConstantBoundaryCondition<InputImageType> lcbc;
-  lcbc.SetConstant( NumericTraits<InputImagePixelType>::max() );
-  iIt.OverrideBoundaryCondition(&lcbc);
+  IteratorType iIt( radius, this->GetInput(), region );
+//   ConstantBoundaryCondition<InputImageType> lcbc;
+//   lcbc.SetConstant( NumericTraits<InputImagePixelType>::max() );
+//   iIt.OverrideBoundaryCondition(&lcbc);
   // we want to search the neighbors with offset >= 0
   // 2D -> 4 neighbors
   // 3D -> 8 neighbors
