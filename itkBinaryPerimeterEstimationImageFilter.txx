@@ -124,14 +124,15 @@ BinaryPerimeterEstimationImageFilter<TInputImage>
         }
       }
     confCount[ conf ]++;
+    progress.CompletedPixel();
     }
 
-  for( typename MapType::const_iterator it=confCount.begin();
-    it!=confCount.end();
-    it++ )
-    {
-    std::cout << it->first << "  " << it->second << std::endl;
-    }
+//   for( typename MapType::const_iterator it=confCount.begin();
+//     it!=confCount.end();
+//     it++ )
+//     {
+//     std::cout << it->first << "  " << it->second << std::endl;
+//     }
 
 }
 
