@@ -67,6 +67,14 @@ public:
   itkGetConstReferenceMacro(FullyConnected, bool);
   itkBooleanMacro(FullyConnected);
 
+  /**
+   * Set/Get the value used as "foreground" in the output image.
+   * Defaults to NumericTraits<PixelType>::max().
+   */
+  itkSetMacro(ForegroundValue, InputImagePixelType);
+  itkGetConstMacro(ForegroundValue, InputImagePixelType);
+
+
 protected:
   BinaryPerimeterEstimationImageFilter();
   ~BinaryPerimeterEstimationImageFilter() {};
@@ -100,6 +108,7 @@ private:
 
   bool m_FullyConnected;
 
+  InputImagePixelType m_ForegroundValue;
 
 } ; // end of class
 
