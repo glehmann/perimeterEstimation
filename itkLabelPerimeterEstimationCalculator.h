@@ -34,6 +34,8 @@ public:
   typedef typename InputImageType::SizeType       SizeType;
   typedef typename InputImageType::IndexType      IndexType;
   
+  typedef typename std::map< InputImagePixelType, double > PerimetersType;
+  
   /** ImageDimension constants */
   itkStaticConstMacro(ImageDimension, unsigned int,
                       TInputImage::ImageDimension);
@@ -68,6 +70,19 @@ public:
     
   void Compute();
   
+  const PerimetersType & GetPerimeters() const
+    {
+    return m_Perimeters;
+    }
+    
+  const double & GetPerimeter( const InputImagePixelType & label ) const
+    {
+    if( m_Perimeters.find( label ) != m_Perimeters.end() )
+      {
+      return m_Perimeters[ label ];
+      }
+    itkExceptionMacro( << "Unknown label" );
+    }
 
 protected:
   LabelPerimeterEstimationCalculator();
@@ -82,6 +97,8 @@ private:
   bool m_FullyConnected;
 
   InputImageType * m_Image;
+  
+  PerimetersType m_Perimeters;
 
 } ; // end of class
 

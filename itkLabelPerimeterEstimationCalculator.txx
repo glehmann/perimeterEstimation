@@ -44,7 +44,9 @@ void
 LabelPerimeterEstimationCalculator<TInputImage>
 ::Compute()
 {
-
+  
+  m_Perimeters.clear();
+  
   // ProgressReporter progress( this, 0, this->GetImage()->GetRequestedRegion().GetNumberOfPixels() );
   
   // reduce the region to avoid reading outside
