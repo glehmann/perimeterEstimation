@@ -1,11 +1,11 @@
-#ifndef __itkBinaryPerimeterEstimationImageFilter_h
-#define __itkBinaryPerimeterEstimationImageFilter_h
+#ifndef __itkBinaryPerimeterEstimationCalculator_h
+#define __itkBinaryPerimeterEstimationCalculator_h
 
-#include "itkInPlaceImageFilter.h"
+#include "itkObject.h"
 
 namespace itk {
 
-/** \class BinaryPerimeterEstimationImageFilter
+/** \class BinaryPerimeterEstimationCalculator
  * \brief TODO
  *
  * \author Gaëtan Lehmann. Biologie du Développement et de la Reproduction, INRA de Jouy-en-Josas, France.
@@ -13,14 +13,13 @@ namespace itk {
  * \sa 
  */
 template<class TInputImage>
-class ITK_EXPORT BinaryPerimeterEstimationImageFilter : 
-    public InPlaceImageFilter<TInputImage>
+class ITK_EXPORT BinaryPerimeterEstimationCalculator : 
+    public Object
 {
 public:
   /** Standard class typedefs. */
-  typedef BinaryPerimeterEstimationImageFilter Self;
-  typedef InPlaceImageFilter<TInputImage, TInputImage>
-  Superclass;
+  typedef BinaryPerimeterEstimationCalculator Self;
+  typedef Object Superclass;
   typedef SmartPointer<Self>        Pointer;
   typedef SmartPointer<const Self>  ConstPointer;
 
@@ -43,8 +42,7 @@ public:
   itkNewMacro(Self);  
 
   /** Runtime information support. */
-  itkTypeMacro(BinaryPerimeterEstimationImageFilter, 
-               InPlaceImageFilter);
+  itkTypeMacro(BinaryPerimeterEstimationCalculator, Object);
   
   /**
    * Set/Get whether the connected components are defined strictly by
@@ -65,36 +63,27 @@ public:
 
   itkGetConstMacro(Perimeter, double);
 
+  itkSetObjectMacro( Image, InputImageType );
+//  void SetImage( const InputImageType * img )
+//    {
+//    m_Image = img;
+//    }
+//  itkGetObjectMacro( Image, InputImageType );
+  InputImageType * GetImage()
+    {
+    return m_Image;
+    }
+    
+  void Compute();
+  
 
 protected:
-  BinaryPerimeterEstimationImageFilter();
-  ~BinaryPerimeterEstimationImageFilter() {};
+  BinaryPerimeterEstimationCalculator();
+  ~BinaryPerimeterEstimationCalculator() {};
   void PrintSelf(std::ostream& os, Indent indent) const;
 
-  /** BinaryPerimeterEstimationImageFilter needs to request enough of the
-   * marker image to account for the elementary structuring element.
-   * The mask image does not need to be padded. Depending on whether
-   * the filter is configured to run a single iteration or until
-   * convergence, this method may request all of the marker and mask
-   * image be provided. */
-  void GenerateInputRequestedRegion();
-
-  /** This filter will enlarge the output requested region to produce
-   * all of the output if the filter is configured to run to
-   * convergence.
-   * \sa ProcessObject::EnlargeOutputRequestedRegion() */
-  void EnlargeOutputRequestedRegion(DataObject *itkNotUsed(output));
-
-  /** Single-threaded version of GenerateData.  This version is used
-   * when the filter is configured to run to convergence. This method
-   * may delegate to the multithreaded version if the filter is
-   * configured to run a single iteration.  Otherwise, it will
-   * delegate to a separate instance to run each iteration until the
-   * filter converges. */
-  void GenerateData();
-  
 private:
-  BinaryPerimeterEstimationImageFilter(const Self&); //purposely not implemented
+  BinaryPerimeterEstimationCalculator(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
 
   bool m_FullyConnected;
@@ -102,13 +91,15 @@ private:
   InputImagePixelType m_ForegroundValue;
 
   double m_Perimeter;
+  
+  InputImageType * m_Image;
 
 } ; // end of class
 
 } // end namespace itk
   
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBinaryPerimeterEstimationImageFilter.txx"
+#include "itkBinaryPerimeterEstimationCalculator.txx"
 #endif
 
 #endif

@@ -3,7 +3,7 @@
 #include "itkCommand.h"
 #include "itkSimpleFilterWatcher.h"
 
-#include "itkLabelPerimeterEstimationImageFilter.h"
+#include "itkLabelPerimeterEstimationCalculator.h"
 
 
 int main(int argc, char * argv[])
@@ -24,14 +24,15 @@ int main(int argc, char * argv[])
   typedef itk::ImageFileReader< IType > ReaderType;
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );
+  reader->Update();
 
-  typedef itk::LabelPerimeterEstimationImageFilter< IType > FilterType;
+  typedef itk::LabelPerimeterEstimationCalculator< IType > FilterType;
   FilterType::Pointer filter = FilterType::New();
-  filter->SetInput( reader->GetOutput() );
+  filter->SetImage( reader->GetOutput() );
 
-  itk::SimpleFilterWatcher watcher(filter, "filter");
+  // itk::SimpleFilterWatcher watcher(filter, "filter");
 
-  filter->Update();
+  filter->Compute();
 
   return 0;
 }
