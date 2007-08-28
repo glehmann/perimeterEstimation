@@ -16,7 +16,7 @@ int main(int argc, char * argv[])
     exit(1);
     }
 
-  const int dim = 2;
+  const int dim = 3;
   
   typedef unsigned char PType;
   typedef itk::Image< PType, dim > IType;

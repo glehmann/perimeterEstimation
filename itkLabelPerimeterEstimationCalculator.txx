@@ -74,17 +74,34 @@ LabelPerimeterEstimationCalculator<TInputImage>
   // 3D -> 8 neighbors
   typename IteratorType::OffsetType offset;
   unsigned int centerIndex = iIt.GetCenterNeighborhoodIndex();
-  for( unsigned int d=centerIndex+1; d < 2*centerIndex+1; d++ )
+  // store the offsets to reuse them to evaluate the contributions of the
+  // configurations
+  typename std::vector< IndexType > indexes;
+  IndexType idx0;
+  idx0.Fill( 0 );
+  for( unsigned int d=centerIndex; d < 2*centerIndex+1; d++ )
     {
     offset = iIt.GetOffset( d );
-    iIt.ActivateOffset( offset );
-    for ( int j=0; j<ImageDimension; j++ )
+    bool deactivate = false;
+    for ( int j=0; j<ImageDimension && !deactivate; j++ )
       {
       if( offset[j] < 0 )
         {
-        iIt.DeactivateOffset( offset );
+        deactivate = true;
         }
       }
+    if( deactivate )
+      {
+//       std::cout << "- " << offset << std::endl;
+      iIt.DeactivateOffset( offset );
+      }
+    else
+      {
+//       std::cout << "+ " << idx0 + offset << std::endl;
+      iIt.ActivateOffset( offset );
+      indexes.push_back( idx0 + offset );
+      }
+
     }
   
   // to store the configurations count for all the labels
@@ -132,20 +149,74 @@ LabelPerimeterEstimationCalculator<TInputImage>
 
     }
 
-   for( typename LabelMapType::const_iterator it=confCount.begin();
-     it!=confCount.end();
-     it++ )
-     {
-     
-     for( typename MapType::const_iterator it2=it->second.begin();
-       it2!=it->second.end();
-       it2++ )
-       {
-       // std::cout << it->first+0.0 << "  "  << it2->first << "  " << it2->second << std::endl;
-       }
-       
-       m_Perimeters[ it->first ] = 1;
-     }
+  // compute the participation to the perimeter for all the configurations
+//   std::cout << "spacing: " << this->GetImage()->GetSpacing() << std::endl;
+  double physicalSize = 1;
+  for( int i=0; i<ImageDimension; i++ )
+    {
+    physicalSize *= this->GetImage()->GetSpacing()[i];
+    }
+  typedef typename std::map< unsigned long, double > ContributionMapType;
+  ContributionMapType contributions;
+  int numberOfNeighbors = (int)vcl_pow( 2.0, ImageDimension );
+  int numberOfConfigurations = (int)vcl_pow( 2.0, numberOfNeighbors );
+  // create an image to store the neighbors
+  typedef typename itk::Image< bool, ImageDimension > ImageType;
+  typename ImageType::Pointer neighborsImage = ImageType::New();
+  // typename ImageType::SizeType size;
+  size.Fill( 2 );
+  neighborsImage->SetRegions( size );
+  neighborsImage->Allocate();
+  for( int i=0; i<numberOfConfigurations; i++ )
+    {
+    neighborsImage->FillBuffer( false );
+    for( int j=0; j<numberOfNeighbors; j++ )
+      {
+      if( i & 1 << j )
+        {
+        neighborsImage->SetPixel( indexes[ j ], true );
+        }
+      }
+    // the image is created - we can now compute the contributions of the pixels
+    // for that configuration
+    contributions[i] = 0;
+    for( int j=0; j<numberOfNeighbors; j++ )
+      {
+      IndexType currentIdx = indexes[j];
+      if( neighborsImage->GetPixel( currentIdx ) )
+        {
+        for( int k=0; k<ImageDimension; k++ )
+          {
+          IndexType idx = currentIdx;
+          idx[k] = vcl_abs( idx[k] - 1 );
+          if( !neighborsImage->GetPixel( idx ) )
+            {
+            contributions[i] += physicalSize / this->GetImage()->GetSpacing()[k] / 2.0;
+            }
+          }
+        }
+      }
+    contributions[i] /= ImageDimension;
+//     std::cout << "configuration: " << i << "  contribution: " << contributions[i] << std::endl;
+    }
+
+
+  // and use those contributions to found the perimeter
+  m_Perimeters.clear();
+  for( typename LabelMapType::const_iterator it=confCount.begin();
+    it!=confCount.end();
+    it++ )
+    {
+    m_Perimeters[ it->first ] = 0;
+    for( typename MapType::const_iterator it2=it->second.begin();
+      it2!=it->second.end();
+      it2++ )
+      {
+      m_Perimeters[ it->first ] += contributions[ it2->first ] * it2->second;
+//       std::cout << it->first+0.0 << "  "  << it2->first << "  " << it2->second << std::endl;
+      }
+    std::cout << "label: " << it->first+0.0 << "  perimeter: " << m_Perimeters[ it->first ] << std::endl;
+    }
 
 }
 
