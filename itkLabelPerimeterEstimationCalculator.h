@@ -57,13 +57,12 @@ public:
   itkGetConstReferenceMacro(FullyConnected, bool);
   itkBooleanMacro(FullyConnected);
 
-  itkSetObjectMacro( Image, InputImageType );
-//  void SetImage( const InputImageType * img )
-//    {
-//    m_Image = img;
-//    }
-//  itkGetObjectMacro( Image, InputImageType );
-  InputImageType * GetImage()
+  void SetImage( const InputImageType * img )
+    {
+    m_Image = img;
+    }
+
+  const InputImageType * GetImage() const
     {
     return m_Image;
     }
@@ -96,7 +95,7 @@ private:
 
   bool m_FullyConnected;
 
-  InputImageType * m_Image;
+  const InputImageType * m_Image;
   
   PerimetersType m_Perimeters;
 

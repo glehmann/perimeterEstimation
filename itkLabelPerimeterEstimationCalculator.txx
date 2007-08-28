@@ -141,8 +141,10 @@ LabelPerimeterEstimationCalculator<TInputImage>
        it2!=it->second.end();
        it2++ )
        {
-       std::cout << it->first+0.0 << "  "  << it2->first << "  " << it2->second << std::endl;
+       // std::cout << it->first+0.0 << "  "  << it2->first << "  " << it2->second << std::endl;
        }
+       
+       m_Perimeters[ it->first ] = 1;
      }
 
 }
