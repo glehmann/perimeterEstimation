@@ -215,7 +215,7 @@ LabelPerimeterEstimationCalculator<TInputImage>
       m_Perimeters[ it->first ] += contributions[ it2->first ] * it2->second;
 //       std::cout << it->first+0.0 << "  "  << it2->first << "  " << it2->second << std::endl;
       }
-    std::cout << "label: " << it->first+0.0 << "  perimeter: " << m_Perimeters[ it->first ] << std::endl;
+//     std::cout << "label: " << it->first+0.0 << "  perimeter: " << m_Perimeters[ it->first ] << std::endl;
     }
 
 }
