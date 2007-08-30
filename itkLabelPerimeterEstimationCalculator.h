@@ -78,7 +78,7 @@ public:
     {
     if( m_Perimeters.find( label ) != m_Perimeters.end() )
       {
-      return m_Perimeters[ label ];
+      return m_Perimeters.find( label )->second;
       }
     itkExceptionMacro( << "Unknown label" );
     }
