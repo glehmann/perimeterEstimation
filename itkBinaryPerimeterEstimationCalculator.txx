@@ -44,6 +44,8 @@ void
 BinaryPerimeterEstimationCalculator<TInputImage>
 ::Compute()
 {  
+  m_Perimeter = 0;
+
   // reduce the region to avoid reading outside
   RegionType region = this->GetImage()->GetBufferedRegion();
   SizeType size = region.GetSize();
@@ -58,27 +60,38 @@ BinaryPerimeterEstimationCalculator<TInputImage>
   radius.Fill(1);
 
   // set up the iterator
-  typedef ConstShapedNeighborhoodIterator<InputImageType> IteratorType;
+  typedef ConstShapedNeighborhoodIterator< InputImageType > IteratorType;
   typename IteratorType::ConstIterator nIt;
-  IteratorType iIt( radius, this->GetImage(), region );
-//   ConstantBoundaryCondition<InputImageType> lcbc;
-//   lcbc.SetConstant( NumericTraits<InputImagePixelType>::max() );
-//   iIt.OverrideBoundaryCondition(&lcbc);
+  IteratorType iIt(radius, this->GetImage(), region);
   // we want to search the neighbors with offset >= 0
   // 2D -> 4 neighbors
   // 3D -> 8 neighbors
   typename IteratorType::OffsetType offset;
   unsigned int centerIndex = iIt.GetCenterNeighborhoodIndex();
-  for( unsigned int d=centerIndex+1; d < 2*centerIndex+1; d++ )
+  // store the offsets to reuse them to evaluate the contributions of the
+  // configurations
+  typename std::vector< IndexType > indexes;
+  IndexType idx0;
+  idx0.Fill(0);
+  for ( unsigned int d = centerIndex; d < 2 * centerIndex + 1; d++ )
     {
-    offset = iIt.GetOffset( d );
-    iIt.ActivateOffset( offset );
-    for ( int j=0; j<ImageDimension; j++ )
+    offset = iIt.GetOffset(d);
+    bool deactivate = false;
+    for ( unsigned int j = 0; j < ImageDimension && !deactivate; j++ )
       {
-      if( offset[j] < 0 )
+      if ( offset[j] < 0 )
         {
-        iIt.DeactivateOffset( offset );
+        deactivate = true;
         }
+      }
+    if ( deactivate )
+      {
+      iIt.DeactivateOffset(offset);
+      }
+    else
+      {
+      iIt.ActivateOffset(offset);
+      indexes.push_back(idx0 + offset);
       }
     }
   
@@ -103,11 +116,62 @@ BinaryPerimeterEstimationCalculator<TInputImage>
     // progress.CompletedPixel();
     }
 
+  // compute the participation to the perimeter for all the configurations
+  double physicalSize = 1.0;
+  for ( unsigned int i = 0; i < ImageDimension; i++ )
+    {
+    physicalSize *= this->GetImage()->GetSpacing()[i];
+    }
+  typedef typename std::map< unsigned long, double > ContributionMapType;
+  ContributionMapType contributions;
+  const unsigned int  numberOfNeighbors      =
+    static_cast< unsigned int >( vcl_pow( 2.0, static_cast< double >( ImageDimension ) ) );
+  const unsigned int numberOfConfigurations =
+    static_cast< unsigned int >( vcl_pow( 2.0, static_cast< double >( numberOfNeighbors ) ) );
+  // create an image to store the neighbors
+  typedef typename itk::Image< bool, ImageDimension > ImageType;
+  typename ImageType::Pointer neighborsImage = ImageType::New();
+  // typename ImageType::SizeType size;
+  size.Fill(2);
+  neighborsImage->SetRegions(size);
+  neighborsImage->Allocate();
+  for ( unsigned int i = 0; i < numberOfConfigurations; i++ )
+    {
+    neighborsImage->FillBuffer(false);
+    for ( unsigned int j = 0; j < numberOfNeighbors; j++ )
+      {
+      if ( i & 1 << j )
+        {
+        neighborsImage->SetPixel(indexes[j], true);
+        }
+      }
+    // the image is created - we can now compute the contributions of the pixels
+    // for that configuration
+    contributions[i] = 0;
+    for ( unsigned int j = 0; j < numberOfNeighbors; j++ )
+      {
+      IndexType currentIdx = indexes[j];
+      if ( neighborsImage->GetPixel(currentIdx) )
+        {
+        for ( unsigned int k = 0; k < ImageDimension; k++ )
+          {
+          IndexType idx = currentIdx;
+          idx[k] = vcl_abs(idx[k] - 1);
+          if ( !neighborsImage->GetPixel(idx) )
+            {
+            contributions[i] += physicalSize / this->GetImage()->GetSpacing()[k] / 2.0;
+            }
+          }
+        }
+      }
+    contributions[i] /= ImageDimension;
+    }
+
    for( typename MapType::const_iterator it=confCount.begin();
      it!=confCount.end();
      it++ )
      {
-     std::cout << it->first << "  " << it->second << std::endl;
+     m_Perimeter += contributions[it->first] * it->second;
      }
 
 }
