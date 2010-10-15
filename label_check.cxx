@@ -16,7 +16,7 @@ int main(int argc, char * argv[])
     exit(1);
     }
 
-  const int dim = 3;
+  const int dim = 2;
   
   typedef unsigned char PType;
   typedef itk::Image< PType, dim > IType;
@@ -26,6 +26,8 @@ int main(int argc, char * argv[])
   reader->SetFileName( argv[1] );
   reader->Update();
 
+  std::cout << "spacing: " << reader->GetOutput()->GetSpacing() << std::endl;
+
   typedef itk::LabelPerimeterEstimationCalculator< IType > FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetImage( reader->GetOutput() );
@@ -33,7 +35,13 @@ int main(int argc, char * argv[])
   // itk::SimpleFilterWatcher watcher(filter, "filter");
 
   filter->Compute();
-
+  for(int i=0; i<=itk::NumericTraits<PType>::max(); i++)
+    {
+    if( filter->HasLabel(i) )
+      {
+      std::cout << i << ": " << filter->GetPerimeter(i) << std::endl;
+      }
+    }
   return 0;
 }
 

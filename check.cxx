@@ -33,6 +33,7 @@ int main(int argc, char * argv[])
   // itk::SimpleFilterWatcher watcher(filter, "filter");
 
   filter->Compute();
+  std::cout << filter->GetPerimeter() << std::endl;
 
   return 0;
 }
