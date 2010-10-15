@@ -63,13 +63,43 @@ ENDIF(BUILD_WRAPPERS)
 
 IF(BUILD_TESTING)
 
-SET(CurrentExe "check")
-ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
-TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+SET(CurrentExe "check2")
+ADD_EXECUTABLE(check2 check.cxx)
+TARGET_LINK_LIBRARIES(check2 ${Libraries})
+set_target_properties(check2 PROPERTIES COMPILE_FLAGS -DDIM=2)
 
-SET(CurrentExe "label_check")
-ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
-TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+SET(CurrentExe "label_check2")
+ADD_EXECUTABLE(label_check2 label_check.cxx)
+TARGET_LINK_LIBRARIES(label_check2 ${Libraries})
+set_target_properties(label_check2 PROPERTIES COMPILE_FLAGS -DDIM=2)
+
+SET(CurrentExe "check3")
+ADD_EXECUTABLE(check3 check.cxx)
+TARGET_LINK_LIBRARIES(check3 ${Libraries})
+
+SET(CurrentExe "label_check3")
+ADD_EXECUTABLE(label_check3 label_check.cxx)
+TARGET_LINK_LIBRARIES(label_check3 ${Libraries})
+
+
+SET(CurrentExe "lm2")
+ADD_EXECUTABLE(lm2 lm.cxx itkGeometryUtilities.cxx)
+TARGET_LINK_LIBRARIES(lm2 ${Libraries})
+set_target_properties(lm2 PROPERTIES COMPILE_FLAGS -DDIM=2)
+
+SET(CurrentExe "glm2")
+ADD_EXECUTABLE(glm2 lm.cxx itkGeometryUtilities.cxx)
+TARGET_LINK_LIBRARIES(glm2 ${Libraries})
+set_target_properties(glm2 PROPERTIES COMPILE_FLAGS "-DDIM=2 -DITK_DO_NOT_USE_PERIMETER_SPECIALIZATION")
+
+SET(CurrentExe "lm3")
+ADD_EXECUTABLE(lm3 lm.cxx itkGeometryUtilities.cxx)
+TARGET_LINK_LIBRARIES(lm3 ${Libraries})
+
+SET(CurrentExe "glm3")
+ADD_EXECUTABLE(glm3 lm.cxx itkGeometryUtilities.cxx)
+TARGET_LINK_LIBRARIES(glm3 ${Libraries})
+set_target_properties(glm3 PROPERTIES COMPILE_FLAGS "-DITK_DO_NOT_USE_PERIMETER_SPECIALIZATION")
 
 ENDIF(BUILD_TESTING)
 

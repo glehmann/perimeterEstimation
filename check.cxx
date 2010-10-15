@@ -9,14 +9,18 @@
 int main(int argc, char * argv[])
 {
 
-  if( argc != 2 )
+  if( argc != 3 )
     {
-    std::cerr << "usage: " << argv[0] << " " << std::endl;
+    std::cerr << "usage: " << argv[0] << " img fg" << std::endl;
     // std::cerr << "  : " << std::endl;
     exit(1);
     }
 
-  const int dim = 2;
+#if defined(DIM)
+  const int dim = DIM;
+#else
+  const int dim = 3;
+#endif
   
   typedef unsigned char PType;
   typedef itk::Image< PType, dim > IType;
@@ -29,6 +33,7 @@ int main(int argc, char * argv[])
   typedef itk::BinaryPerimeterEstimationCalculator< IType > FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetImage( reader->GetOutput() );
+  filter->SetForegroundValue( atoi(argv[2]) );
 
   // itk::SimpleFilterWatcher watcher(filter, "filter");
 
