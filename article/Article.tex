@@ -33,16 +33,17 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 
 % The title should be descriptive enough for people to be able to find
 % the relevant document. 
-\title{}
+\title{N-Dimensional surface estimation using the Crofton formula and the run-length encoding}
 
 % Increment the release number whenever significant changes are made.
 % The author and/or editor can define 'significant' however they like.
-\release{0.00}
+% \release{0.00}
 
 % At minimum, give your name and an email address.  You can include a
 % snail-mail address if you like.
-\author{}
-\authoraddress{}
+\author{Ga\"etan Lehmann{$^1$} {\small{and}} David Legland{$^2$}}
+\authoraddress{{$^1$}INRA, UMR 1198; ENVA; CNRS, FRE 2857, Biologie du D\'eveloppement et Reproduction, Jouy en Josas, F-78350, France.\\
+{$^2$}INRA, XXX, France.}
 
 \begin{document}
 \maketitle
@@ -54,37 +55,71 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 
 \begin{abstract}
 \noindent
-% The abstract should be a paragraph or two long, and describe the
-% scope of the document.
+Unlike the measure of the area in 2D or of the volume in 3D, the perimeter and the surface are not easily measurable in a discretized image.
+In this article we describe a method based on the Crofton formula to measure those two parameters in a discritized image. The accuracy of
+the method is discussed and tested on several known objects. An algorithm based on the run-length encoding of binary objects is presented
+and compared to a brute force approach.
+An implementation is provided and integrated in the LabelObject/LabelMap framework contributed earlier by the authors.
 \end{abstract}
 
 \tableofcontents
 
+\section{la methode}
 
-% \url{http://www.itk.org}
-% \code{Insight/Documentation/Style.pdf}
-% \section{Principles of Solar Spot Detection}
-% \cite{ITKSoftwareGuide}.
-% \doxygen{ImageToImageFilter}
+% à faire : trouver un titre et remplir cette section
+% quelques idées de blabla:
+\subsection{Other known methods}
+\subsection{The Crofton formula}
+\subsection{Theoritical accuracy}
 
-% \small \begin{verbatim}
-% \end{verbatim} \normalsize
+\subsection{Counting the intercepts}
 
+The number of intercepts, required to use the method described earlier, can be efficiently computed by using the run-length encoding of
+the binary objects.
 
-% The {itemize} environment uses a bullet for each \item.  If you want the 
-% \item's numbered, use the {enumerate} environment instead.
-% \begin{itemize}
-%   \item  Insight Toolkit 2.4.
-%   \item  CMake 2.2
-% \end{itemize}
+% à faire
 
-% \ref{cthead1}
+\section{Implementation}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{cthead1}
-\caption{The input image.\label{cthead1}}
-\end{figure}
+The implementation of this algorithm has been done in the \verb$itk::ShapeLabelMapFilter$ class, which is already in charge of the computation of
+several shape descriptors. The run-length encoding used in the \verb$itk::LabelObject$ representation is reused.
+The implementation is N-dimensional and thus is usable for any image dimension. The most useful cases, 2D and 3D have been specialized
+to provide a more accurate estimation by also using the diagonals -- 4 directions in 2D and 13 directions in 3D. In the 4D case and greater,
+the diagonals are not used.
+
+\subsection{N-Dimensional name}
+The attribute is called {\em Perimeter} independently of the dimension of the image and is available in the \verb$itk::ShapeLabelObject$.
+
+\subsection{Border management}
+
+The borders of the image is considered to be in the background, so the contour of an object touching the border of the image is measured.
+This was not the case in the previous (undocumented) implementation and has been proven to be misleading for many users.
+It is possible to subtract the perimeter on the border to the full perimeter if the measure without the part touching the border is needed.
+
+\subsection{Multithreading}
+
+The architecture implemented in \verb$itk::ShapeLabelMapFilter$ use one thread per LabelObject. The perimeter estimation has been integrated in this
+architecture, providing a multithreaded implementation as long as there are several LabelObjects in the input LabelMap.
+
+\subsection{Accuracy}
+
+% à faire
+% à mettre l'impact du calcul surface - surface sur le bord
+
+\subsection{Performance}
+
+For comparison, we provide two implementations of the brute force algorithm -- one dedicated to a single binary object, and another for
+several, labelized objects. The implementation for labelized objects is slower but closer of the capabilities of the run-length encoding based
+implementation.
+
+% à faire
+
+\subsection{Usage}
+
+The perimeter estimation is now turned on by default, but can still disabled with \verb$SetComputePerimeter(false)$ in
+\verb$itk::ShapeLabelMapFilter$ if not needed. This should enhance the user experience, especially for the attributes non obviously derived
+from the perimeter like the roundness.
+
 
 
 \appendix
