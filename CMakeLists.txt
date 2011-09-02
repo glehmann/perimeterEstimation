@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 2.8)
 #Change PROJECT_NAME to the name of your project
 PROJECT(perimeterEstimation)
 
@@ -30,9 +31,7 @@ ENDFOREACH(Package)
 #Set any libraries that your project depends on.
 #examples: ITKCommon, VTKRendering, etc
 SET(Libraries
-  ITKCommon
-  ITKBasicFilters
-  ITKIO
+  ${ITK_LIBRARIES}
 )
 
 
@@ -100,6 +99,14 @@ SET(CurrentExe "glm3")
 ADD_EXECUTABLE(glm3 lm.cxx itkGeometryUtilities.cxx)
 TARGET_LINK_LIBRARIES(glm3 ${Libraries})
 set_target_properties(glm3 PROPERTIES COMPILE_FLAGS "-DITK_DO_NOT_USE_PERIMETER_SPECIALIZATION")
+
+FIND_PACKAGE(VTK)
+if(VTK_DIR)
+  INCLUDE(${VTK_USE_FILE})
+  
+  ADD_EXECUTABLE(marchingCubes marchingCubes.cxx)
+  TARGET_LINK_LIBRARIES(marchingCubes vtkHybrid ${Libraries})
+endif()
 
 ENDIF(BUILD_TESTING)
 
